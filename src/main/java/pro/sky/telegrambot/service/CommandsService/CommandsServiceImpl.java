@@ -14,6 +14,8 @@ public class CommandsServiceImpl implements CommandsService {
     }
 
     private String getTextMessage(String username) {
-        return "Привет, " + username + " !";
+        return "Привет, " + username + " !\n" +
+                "Я могу поставить любое уведомление\n" +
+                "Просто напиши сообщение в виде '01.01.2022 20:00 Сделать домашнюю работу'";
     }
 }
