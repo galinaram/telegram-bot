@@ -1,15 +1,12 @@
 package pro.sky.telegrambot.model;
 
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Entity
-public class NotificationsModel {
+@Table(name = "notification_task")
+public class Notifications {
     public static final String TABLE_NAME = "notification_task";
 
     @Id
@@ -17,7 +14,9 @@ public class NotificationsModel {
     private Long id;
     @Column(name = "chat_id")
     private long chatId;
+    @Column(name = "message")
     private String message;
+    @Column(name = "datetime")
     private LocalDateTime datetime;
     @Column(name = "is_sent")
     private boolean isSent = false;

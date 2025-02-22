@@ -3,31 +3,30 @@ package pro.sky.telegrambot.listener;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Update;
-import com.pengrad.telegrambot.request.SendMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pro.sky.telegrambot.service.CommandServiceImpl;
-import pro.sky.telegrambot.service.CommandsService;
+import pro.sky.telegrambot.service.CommandsService.CommandsService;
+import pro.sky.telegrambot.service.ReminderParser.ReminderParser;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
-import java.util.Objects;
+import java.util.regex.Pattern;
 
 @Service
 public class TelegramBotUpdatesListener implements UpdatesListener {
 
-    private Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
+    private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
 
-    @Autowired
+
+    private final ReminderParser reminderParser;
     private final CommandsService commandsService;
+    private final TelegramBot telegramBot;
 
-    @Autowired
-    private TelegramBot telegramBot;
-
-    public TelegramBotUpdatesListener(CommandsService commandsService) {
+    public TelegramBotUpdatesListener(ReminderParser reminderParser, CommandsService commandsService, TelegramBot telegramBot) {
+        this.reminderParser = reminderParser;
         this.commandsService = commandsService;
+        this.telegramBot = telegramBot;
     }
 
     @PostConstruct
@@ -39,11 +38,14 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     public int process(List<Update> updates) {
         updates.forEach(update -> {
             logger.info("Processing update: {}", update);
-            // Process your updates here
 
-            if (update.message().text().equals("/start")){
-                System.out.println("/start founded");
-                telegramBot.execute(commandsService.start(update));
+            if (update.message().text() != null) {
+                if (update.message().text().equals("/start")) {
+                    System.out.println("/start founded");
+                    telegramBot.execute(commandsService.start(update));
+                } else if (Pattern.matches(reminderParser.getCreatePattern(), update.message().text())) {
+                    telegramBot.execute(reminderParser.create(update));
+                }
             }
         });
         return UpdatesListener.CONFIRMED_UPDATES_ALL;
